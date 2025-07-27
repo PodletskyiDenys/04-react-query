@@ -2,14 +2,15 @@ import MovieGrid from "../MovieGrid/MovieGrid";
 import SearchBar from "../SearchBar/SearchBar";
 import type { Movie } from "../../types/movie";
 import { fetchMovies } from "../../services/movieService";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import css from "./App.module.css";
 import { Toaster } from "react-hot-toast";
 import toast from "react-hot-toast";
 import MovieModal from "../MovieModal/MovieModal";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import ReactPaginate from "react-paginate";
-import { useEffect } from "react";
+import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
 export default function App() {
   const [query, setQuery] = useState("");
@@ -71,9 +72,8 @@ export default function App() {
 
       <Toaster />
 
-      {isLoading && <strong>Loading movies, please wait...</strong>}
-
-      {isError && <strong>There was an error, please try again...</strong>}
+      {isLoading && <Loader />}
+      {isError && <ErrorMessage />}
 
       {data && data.results.length > 0 && (
         <MovieGrid onSelect={handleSelectedMovie} movies={data.results} />
