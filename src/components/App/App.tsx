@@ -28,16 +28,16 @@ export default function App() {
   const totalPages = data?.total_pages ?? 0;
 
   useEffect(() => {
-    if (data?.results.length === 0) {
+    if (query !== "" && data?.results.length === 0) {
       toast("No movies found for your request.", {
         duration: 2000,
         position: "top-center",
       });
     }
-  }, [isSuccess, data]);
+  }, [isSuccess, data, query]);
 
   const handleFormSubmit = (newQuery: string) => {
-    setQuery(newQuery);
+    setQuery(newQuery.trim());
     setPage(1);
     setSelectedMovie(null);
   };
@@ -56,31 +56,35 @@ export default function App() {
     <div className={css.app}>
       <SearchBar onSubmit={handleFormSubmit} />
 
-      {isSuccess && data?.results.length > 0 && (
-        <ReactPaginate
-          pageCount={totalPages}
-          pageRangeDisplayed={5}
-          marginPagesDisplayed={1}
-          onPageChange={({ selected }) => setPage(selected + 1)}
-          forcePage={page - 1}
-          containerClassName={css.pagination}
-          activeClassName={css.active}
-          nextLabel="→"
-          previousLabel="←"
-        />
-      )}
+      {query !== "" && (
+        <>
+          {isLoading && <Loader />}
+          {isError && <ErrorMessage />}
 
-      <Toaster />
+          {isSuccess && data?.results.length > 0 && (
+            <>
+              <ReactPaginate
+                pageCount={totalPages}
+                pageRangeDisplayed={5}
+                marginPagesDisplayed={1}
+                onPageChange={({ selected }) => setPage(selected + 1)}
+                forcePage={page - 1}
+                containerClassName={css.pagination}
+                activeClassName={css.active}
+                nextLabel="→"
+                previousLabel="←"
+              />
 
-      {isLoading && <Loader />}
-      {isError && <ErrorMessage />}
+              <MovieGrid onSelect={handleSelectedMovie} movies={data.results} />
 
-      {data && data.results.length > 0 && (
-        <MovieGrid onSelect={handleSelectedMovie} movies={data.results} />
-      )}
+              {isModalOpen && selectedMovie && (
+                <MovieModal movie={selectedMovie} onClose={closeModal} />
+              )}
+            </>
+          )}
 
-      {isModalOpen && selectedMovie && (
-        <MovieModal movie={selectedMovie} onClose={closeModal} />
+          <Toaster />
+        </>
       )}
     </div>
   );
